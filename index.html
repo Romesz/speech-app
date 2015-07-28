@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Experimenting with Speech api</title>
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/style.css" rel="stylesheet">
+  </head>
+  <body ng-app="speechApp">
+    <div ng-controller="speechAppCtrl">
+      <form>
+        <textarea id="speechByText" rows="30" cols="100" class="form-control">
+“Well," said Pooh, "what I like best," and then he had to stop and think.
+Because although Eating Honey was a very good thing to do, there was a moment just before you began to eat it
+which was better than when you were, but he didn't know what it was called.”
+― A.A. Milne, Winnie-the-Pooh
+        </textarea>
+
+        <button id="read" ng-click="read($event)" class="btn btn-default">Read</button>
+        <button id="stop" ng-click="stop($event)" class="btn btn-default">Stop</button>
+        <button id="pause" ng-click="pause($event)" class="btn btn-default">Pause</button>
+        <button id="resume" ng-click="resume($event)" class="btn btn-default">Resume</button>
+      </form>
+    </div>
+
+    <script src="lib/angular.min.js"></script>
+    <script>
+      var app = angular.module('speechApp', []);
+      app.controller('speechAppCtrl', ['$scope', '$window', function ($scope, $window) {
+        if('speechSynthesis' in $window === false) {
+          console.error('Your browser does not support Synthesis');
+          console.log('If you want to force your browser to speak please upgrade to the latest version');
+          return;
+          // TODO: proper error handling
+        }
+
+        var readBtn = angular.element(document.querySelector('#read'))[0];
+        var stopBtn = angular.element(document.querySelector('#stop'))[0];
+        var pauseBtn = angular.element(document.querySelector('#pause'))[0];
+        var resumeBtn = angular.element(document.querySelector('#resume'))[0];
+
+        stopBtn.setAttribute('disabled', 'true');
+        pauseBtn.setAttribute('disabled', 'true');
+        resumeBtn.setAttribute('disabled', 'true');
+
+        $window.onload = function() {
+          $window.speechSynthesis.cancel();
+          // BUGFIX: after browser refresh the speech start to continue (detected in chrome)
+        }
+
+        $scope.read = function(e) {
+          console.info('read button clicked');
+          var textAreaVal = angular.element(document.querySelector('#speechByText'))[0].value;
+          if(textAreaVal === '')
+            return;
+          textAreaVal = textAreaVal.trim();
+          var text = new SpeechSynthesisUtterance(textAreaVal);
+          $window.speechSynthesis.speak(text);
+
+          readBtn.setAttribute('disabled', 'true');
+          stopBtn.removeAttribute('disabled');
+          pauseBtn.removeAttribute('disabled');
+          resumeBtn.setAttribute('disabled', 'true');
+        }
+
+        $scope.stop = function(e) {
+          console.info('stop button clicked');
+          $window.speechSynthesis.cancel();
+
+          readBtn.removeAttribute('disabled');
+          stopBtn.setAttribute('disabled', 'true');
+          pauseBtn.setAttribute('disabled', 'true');
+          resumeBtn.setAttribute('disabled', 'true');
+        }
+
+        $scope.pause = function(e) {
+          console.info('pause button clicked');
+          $window.speechSynthesis.pause();
+
+          readBtn.setAttribute('disabled', 'true');
+          stopBtn.removeAttribute('disabled');
+          pauseBtn.setAttribute('disabled', 'true');
+          resumeBtn.removeAttribute('disabled');
+        }
+
+        $scope.resume = function(e) {
+          console.info('resume button clicked');
+          $window.speechSynthesis.resume();
+
+          readBtn.setAttribute('disabled', 'true');
+          stopBtn.removeAttribute('disabled');
+          pauseBtn.removeAttribute('disabled');
+          resumeBtn.setAttribute('disabled', 'true');
+        }
+
+        $window.speechSynthesis.onend = function() {
+          console.info('end event executed');
+          readBtn.removeAttribute('disabled');
+          stopBtn.setAttribute('disabled', 'true');
+          pauseBtn.setAttribute('disabled', 'true');
+          resumeBtn.setAttribute('disabled', 'true');
+          // BUG: somehow this event does not work
+        }
+
+      }]);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "name": "speech-app",
+  "description": "Speech the text for the user",
+  "version": "0.0.1",
+  "author": "Romano Firtermaiszter <firtermaiszter.romano@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "keywords": [
+    "speech",
+    "experimenting"
+  ],
+  "dependencies": {
+    "gulp": "*",
+    "browser-sync": "^1.8.1"
+  },
+  "license": "MIT"
+}
